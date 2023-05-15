@@ -48,9 +48,16 @@ const TodayCard = () => {
 
   const navigation = useNavigation();
   
-    const handleNavigation = () => {
-        navigation.navigate('TodayScreen')
+    const handleNavigation1 = () => {
+        navigation.navigate('SearchScreen')
     }
+
+    const handleNavigation = () => {
+      const newIndex = activeSlide === 2 ? 0 : activeSlide + 1;
+      setActiveSlide(newIndex);
+      scrollViewRef.current.scrollTo({ x: newIndex * width, animated: true });
+    };
+  
 
   return (
     <View style={styles.slideStyle}>
@@ -88,7 +95,7 @@ const TodayCard = () => {
             </Text>
           </View>
           <View style={styles.bigbuttonA}>
-            <TouchableOpacity syle={styles.button}>
+            <TouchableOpacity onPress={handleNavigation} syle={styles.button}>
               <View style={styles.bigbutton}>
                 <Image source={RightPng} style={styles.image} />
               </View>
@@ -107,7 +114,7 @@ const TodayCard = () => {
             <Text style={styles.textSmall}>with our reliable weather app</Text>
           </View>
           <View style={styles.bigbuttonA}>
-            <TouchableOpacity syle={styles.button}>
+            <TouchableOpacity onPress={handleNavigation1} syle={styles.button}>
               <View style={styles.bigbutton}>
                 <Image source={RightPng} style={styles.image} />
               </View>

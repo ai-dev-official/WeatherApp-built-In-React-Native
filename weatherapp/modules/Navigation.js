@@ -38,16 +38,7 @@ const Navigation = () => {
             component={TodayScreen}
             options={{headerShown: false}}
           />
-          <Stack.Screen
-            name="TomorrowScreen"
-            component={TomorrowScreen}
-            options={{headerShown: false}}
-          />
-          {/* <Stack.Screen
-            name="SevenDayScreen"
-            component={SevenDayScreen}
-            options={{headerShown: false}}
-          /> */}
+          
         </Stack.Navigator>
       </NavigationContainer>
     </>

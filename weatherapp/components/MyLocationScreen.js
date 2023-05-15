@@ -6,6 +6,7 @@ import {
   StatusBar,
   ScrollView,
   findNodeHandle,
+  Dimensions,
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -37,16 +38,15 @@ const MyLocationScreen = ({route}) => {
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
   const [location, setLocation] = useState('London');
-
+  const scrollViewRef = useRef();
 
   useEffect(() => {
-    const { weatherCondition } = route.params || {};
+    const {weatherCondition} = route.params || {};
     if (weatherCondition) {
       setWeatherCondition(weatherCondition);
     }
   }, [route.params]);
 
-  
   useEffect(() => {
     const getWeatherData = async () => {
       try {
@@ -58,7 +58,6 @@ const MyLocationScreen = ({route}) => {
     };
     getWeatherData();
   }, [route.params?.location]);
-  
 
   // sunny wind blood-drop snowflake cloudy-gusts
   const nowWeather = route.params?.nowWeather || null;
@@ -86,38 +85,6 @@ const MyLocationScreen = ({route}) => {
     navigation.navigate('LandingScreen');
   };
 
-  const weatherConditionCode = weatherData?.current?.condition?.code;
-  const weatherConditionCode2 = weatherData?.forecast?.condition?.code;
-  // const weatherConditionIcon = getClosestMatch(weatherConditionCode);
-
-  const weatherConditionIcon = getClosestMatch(conditionCode);
-  // const ImageUrl = `${WEATHER_ICON_NIGHT}/${weatherConditionIcon}.png`;
-
-  const WeatherIconDay = ({code}) => {
-    const iconSource = weatherIconMappingDay[code];
-
-    return <Image source={iconSource} style={styles.icon} />;
-  };
-
-  const WeatherIconNight = ({code}) => {
-    const iconSource = weatherIconMappingNight[code];
-
-    return <Image source={iconSource} style={styles.icon} />;
-  };
-
-  let imageUrl = '';
-  if (
-    forecastData &&
-    forecastData.forecast &&
-    forecastData.forecast.condition
-  ) {
-    imageUrl = forecastData.forecast.condition.icon;
-  }
-  const imageCode = imageUrl.substring(
-    imageUrl.lastIndexOf('/') + 1,
-    imageUrl.lastIndexOf('.'),
-  );
-
   useEffect(() => {
     const getForecastData = async () => {
       try {
@@ -130,33 +97,48 @@ const MyLocationScreen = ({route}) => {
     getForecastData();
   }, [location]);
 
+  const handleScroll = event => {
+    const slide = Math.ceil(
+      event.nativeEvent.contentOffset.x / ((width - 53) / 5),
+    );
+    if (slide !== activeSlide) {
+      setActiveSlide(slide);
+    }
+  };
+
+  const {width} = Dimensions.get('window');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newIndex = activeSlide === 23 ? 0 : activeSlide + 1;
+      setActiveSlide(newIndex);
+      scrollViewRef.current.scrollTo({
+        x: newIndex * ((width - 53) / 5),
+        animated: true,
+      });
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [activeSlide]);
+
   const renderDots = () => {
+    const scrollDurationInSeconds = 300; // Change this value as needed
+    const dotCount = 4;
+    const activeDotIndex = Math.floor((activeSlide * scrollDurationInSeconds) / (18 * dotCount)) % dotCount;
+  
     return (
       <View style={styles.dotContainer}>
-        {[...Array(4)].map((_, i) => (
+        {[...Array(dotCount)].map((_, i) => (
           <Text
             key={i}
-            style={[styles.dot, activeSlide === i && styles.activeDot]}></Text>
+            style={[styles.dot, activeDotIndex === i && styles.activeDot]}
+          ></Text>
         ))}
       </View>
     );
   };
-
-  const scrollViewRef = useRef(null);
-  const currentHourCellRef = useRef(null);
-
-  useEffect(() => {
-    scrollToCurrentHour();
-  }, []);
-
-  const scrollToCurrentHour = () => {
-    if (currentHourCellRef.current && scrollViewRef.current) {
-      const currentHourCell = currentHourCellRef.current;
-      currentHourCell.measure((x, y, width, height, pageX, pageY) => {
-        scrollViewRef.current.scrollTo({ x: pageX, y: 0, animated: true });
-      });
-    }
-  };
+  
+  
   
 
   return (
@@ -174,7 +156,7 @@ const MyLocationScreen = ({route}) => {
               style={styles.image}
             />
             {weatherData && weatherData.current && (
-              <Text style={styles.textC}>{weatherData.current.temp_c}°</Text>
+              <Text style={styles.textC}> {Math.round(weatherData.current.temp_c)}°</Text>
             )}
 
             {weatherData && weatherData.current && (
@@ -263,9 +245,8 @@ const MyLocationScreen = ({route}) => {
                 horizontal={true}
                 pagingEnabled={true}
                 showsHorizontalScrollIndicator={false}
-                onContentSizeChange={scrollToCurrentHour}>
-                  
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                onMomentumScrollEnd={handleScroll}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -286,11 +267,14 @@ const MyLocationScreen = ({route}) => {
 
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[0]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[0]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -299,7 +283,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[1]?.condition.icon}`,
@@ -309,11 +293,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[1]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[1]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -333,21 +320,23 @@ const MyLocationScreen = ({route}) => {
 
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                      {Math.round(forecastData.forecast.forecastday[0]?.hour[2]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[2]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
-                 
-                    {forecastData && forecastData.forecast && (
-                      <Text
-                        style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
-                        {formatTime(
-                          forecastData.forecast?.forecastday[0]?.hour[3]?.time,
-                        )}
-                      </Text>
-                    )}
-                 
+                <View style={styles.cellcol}>
+                  {forecastData && forecastData.forecast && (
+                    <Text
+                      style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
+                      {formatTime(
+                        forecastData.forecast?.forecastday[0]?.hour[3]?.time,
+                      )}
+                    </Text>
+                  )}
+
                   {forecastData && forecastData.forecast && (
                     <Image
                       source={{
@@ -358,11 +347,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[3]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[3]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -371,7 +363,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[4]?.condition.icon}`,
@@ -381,11 +373,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[4]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[4]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -394,7 +389,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[5]?.condition.icon}`,
@@ -404,11 +399,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[5]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[5]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -417,7 +415,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[6]?.condition.icon}`,
@@ -427,11 +425,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[6]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[6]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -440,7 +441,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[7]?.condition.icon}`,
@@ -451,11 +452,14 @@ const MyLocationScreen = ({route}) => {
 
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[7]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[7]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -464,7 +468,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[8]?.condition.icon}`,
@@ -474,11 +478,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[8]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[8]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -487,7 +494,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[9]?.condition.icon}`,
@@ -497,11 +504,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[9]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[9]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -520,11 +530,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[10]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[10]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -533,7 +546,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[11]?.condition.icon}`,
@@ -543,11 +556,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[11]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[11]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -556,7 +572,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[12]?.condition.icon}`,
@@ -567,11 +583,14 @@ const MyLocationScreen = ({route}) => {
 
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[12]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[12]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -580,7 +599,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[13]?.condition.icon}`,
@@ -590,11 +609,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[13]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[13]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -603,7 +625,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[14]?.condition.icon}`,
@@ -613,11 +635,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[14]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[14]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -626,7 +651,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[15]?.condition.icon}`,
@@ -636,11 +661,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[15]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[15]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -649,7 +677,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[16]?.condition.icon}`,
@@ -659,11 +687,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[16]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[16]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -672,7 +703,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[17]?.condition.icon}`,
@@ -683,11 +714,14 @@ const MyLocationScreen = ({route}) => {
 
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[17]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[17]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -696,7 +730,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[18]?.condition.icon}`,
@@ -706,11 +740,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[18]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[18]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -719,7 +756,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[19]?.condition.icon}`,
@@ -729,11 +766,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[19]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[19]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -742,7 +782,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[20]?.condition.icon}`,
@@ -752,11 +792,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[20]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[20]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -765,7 +808,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[21]?.condition.icon}`,
@@ -775,11 +818,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[21]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[21]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -788,7 +834,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[22]?.condition.icon}`,
@@ -798,11 +844,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[22]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[22]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
-                <View style={styles.cellcol} onLayout={scrollToCurrentHour}>
+                <View style={styles.cellcol}>
                   {forecastData && forecastData.forecast && (
                     <Text
                       style={[styles.text, {fontSize: 10, marginBottom: 10}]}>
@@ -811,7 +860,7 @@ const MyLocationScreen = ({route}) => {
                       )}
                     </Text>
                   )}
-                   {forecastData && forecastData.forecast && (
+                  {forecastData && forecastData.forecast && (
                     <Image
                       source={{
                         uri: `https:${forecastData.forecast.forecastday[0]?.hour[23]?.condition.icon}`,
@@ -821,12 +870,14 @@ const MyLocationScreen = ({route}) => {
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
-                       {Math.round(forecastData.forecast.forecastday[0]?.hour[23]?.temp_c)}°
+                      {Math.round(
+                        forecastData.forecast.forecastday[0]?.hour[23]?.temp_c,
+                      )}
+                      °
                     </Text>
                   )}
                 </View>
               </ScrollView>
-
             </View>
           </View>
         </View>
@@ -928,22 +979,21 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   tabledown: {
-    width: 345,
+    width: 355,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
-    paddingLeft: 2,
+    paddingLeft: 6,
     backgroundColor: '#1967de',
     borderRadius: 25,
-
   },
   cellcol: {
     paddingVertical: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 68
+    width: 68,
   },
   dotContainer: {
     flexDirection: 'row',

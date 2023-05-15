@@ -6,25 +6,39 @@ const GradientBackground = ({children, weatherCondition}) => {
   let colors = [];
 
   switch (weatherCondition) {
+    case' Clear':
     case 'sunny':
       colors = ['#eebe17', '#f48d25'];
       break;
-    case 'rainy':
+    case 'Rainy':
+    case 'Drizzly':
+    case 'Light rain':
+    case 'Patchy rain':
+    case 'Light rain shower':
+    case 'Patchy rain possible':
+    case 'Patchy light rain with thunder':
       colors = ['#6f8496', '#41536e'];
       break;
-    case 'cloudy':
+    case 'Cloudy':
+    case 'Foggy':
+    case 'Overcast':
+    case 'Partly cloudy':
       colors = ['#8364a0', '#282168'];
       break;
-    case 'stormy':
+    case 'Stormy':
+    case 'Windy':
+    case 'Thundry':
       colors = ['#f4a5c3', '#eb5690'];
       break;
-      case 'snowy':
+      case 'Snowy':
       colors = ['#74bdfd', '#2a71dd'];
       break;
     default:
       colors = ['#52c5fc', '#fecf3c'];
       break;
   }
+
+
   //#6f8496 #41536e,  #8364a0  #282168, #eebe17 #f48d25, #7cbaf4 #2e76dc
   return (
     <>

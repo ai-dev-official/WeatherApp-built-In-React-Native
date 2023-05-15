@@ -46,16 +46,22 @@ const SearchScreen = () => {
   const [forecast, setForecast] = useState(null);
   const [nowWeather, setNowWeather] = useState('');
   const [weatherData, setWeatherData] = useState(null);
-  const [location, setLocation] = useState('Dublin');
+  const [location, setLocation] = useState('');
   const [weatherTime, setWeatherTime] = useState('');
   const [weatherCondition, setWeatherCondition] = useState('');
   const [locationList, setLocationList] = useState([]);
+
+  const locationCondition = weatherData?.current?.condition.text;
+
+  const localTemp = weatherData?.current.temp_c;
 
   useEffect(() => {
     const getWeatherData = async () => {
       try {
         const data = await fetchWeatherData(location);
         setWeatherData(data);
+        setWeatherCondition(locationCondition);
+        setForecast(localTemp);
       } catch (error) {
         console.error(error);
       }
@@ -67,7 +73,6 @@ const SearchScreen = () => {
 
   const navigation = useNavigation();
 
-
   const handleNavigation = (weatherCondition, selectedLocation) => {
     setLocation(selectedLocation);
     navigation.navigate('MyLocationScreen', {
@@ -76,21 +81,21 @@ const SearchScreen = () => {
     });
   };
 
-  
-  // const handleNavigation = weatherCondition => {
-  //   navigation.navigate('MyLocationScreen', {
-  //     location: location,
-  //     weatherCondition,
-  //   });
-  // };
+
 
   const handleTomorrow = () => {
-    navigation.navigate('TomorrowScreen');
+    navigation.navigate('TodayScreen');
   };
+
 
   const weatherIconUrl = weatherData?.current?.condition?.icon;
 
   const weatherImage = imageStyles[nowWeather];
+
+  let tempData = '';
+  if (weatherData && weatherData.current) {
+    tempData = weatherData?.current.temp_c;
+  }
 
   const locationData = [
     {
@@ -98,30 +103,35 @@ const SearchScreen = () => {
       nowWeather: 'rainy',
       locationName: 'Dublin',
       imageSource: RainCloud,
+      tempData:'13',
     },
     {
       id: '2',
-      nowWeather: 'cloudy',
+      nowWeather: 'Partly cloudy',
       locationName: 'Toronto',
       imageSource: MoonCloud,
+      tempData:'17',
     },
     {
       id: '3',
       nowWeather: 'sunny',
       locationName: 'Istanbul',
       imageSource: SunShine,
+      tempData:'24',
     },
     {
       id: '4',
       nowWeather: 'snowy',
       locationName: 'Nuuk',
       imageSource: SnowFlake,
+      tempData: '-6',
     },
     {
       id: '5',
       nowWeather: 'rainy',
       locationName: 'London',
       imageSource: SnowFlake,
+      tempData:15
     },
   ];
 
@@ -142,39 +152,47 @@ const SearchScreen = () => {
           </View>
           <SearchBar />
           <FlatList
-        data={locationData}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => {
-          const locationWeatherData = weatherData?.locationData?.[item.locationName];
+            data={locationData}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => {
+              const locationWeatherData =
+                weatherData?.locationData?.[item.locationName];
 
-          return (
-            <TouchableOpacity
-              onPress={() => handleNavigation(item.nowWeather, item.locationName)}>
-              <LocationGradient
-                nowWeather={item.nowWeather}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.location}
-              >
-                <View style={styles.text}>
-                  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.textA}>
-                    {item.locationName}
-                  </Text>
-                  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.textB}>
-                    {locationWeatherData ? locationWeatherData.condition.text : item.nowWeather === 'snowy' ? 'Snowy' : 'Partly Cloudy'}
-                  </Text>
-                  <Text style={styles.textC}>
-                    {locationWeatherData ? locationWeatherData.temp_c : '-6'}°
-                  </Text>
-                </View>
-                <View style={styles.imgcontainer}>
-                  <Image source={item.imageSource} style={styles.image} />
-                </View>
-              </LocationGradient>
-            </TouchableOpacity>
-          );
-        }}
-      />
+              return (
+                <TouchableOpacity
+                  onPress={() =>
+                    handleNavigation(item.nowWeather, item.locationName)
+                  }>
+                  <LocationGradient
+                    nowWeather={item.nowWeather}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={styles.location}>
+                    <View style={styles.text}>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={styles.textA}>
+                        {item.locationName}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={styles.textB}>
+                        {item.nowWeather}
+                      </Text>
+                      <Text style={styles.textC}>
+                      {item.tempData}°
+                      </Text>
+                    </View>
+                    <View style={styles.imgcontainer}>
+                      <Image source={item.imageSource} style={styles.image} />
+                    </View>
+                  </LocationGradient>
+                </TouchableOpacity>
+              );
+            }}
+          />
         </ScrollView>
       </View>
     </>
