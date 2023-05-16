@@ -17,7 +17,7 @@ const Navigation = () => {
     <>
       <StatusBar backgroundColor="transparent" barStyle="light-content" />
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="SearchScreen">
+        <Stack.Navigator initialRouteName="LandingScreen">
            <Stack.Screen
             name="MyLocationScreen"
             component={MyLocationScreen}

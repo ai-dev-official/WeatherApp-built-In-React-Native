@@ -7,7 +7,7 @@ const GradientBackground = ({children, weatherCondition}) => {
 
   switch (weatherCondition) {
     case' Clear':
-    case 'sunny':
+    case 'Sunny':
       colors = ['#eebe17', '#f48d25'];
       break;
     case 'Rainy':

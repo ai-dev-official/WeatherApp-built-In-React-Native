@@ -11,65 +11,61 @@ import {
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import DotsIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-// import SearchIcons from 'react-native-vector-icons/AntDesign';
 import RainCloud from '../assets/a3.webp';
 import SunShine from '../assets/a4.webp';
 import SnowFlake from '../assets/a2.webp';
 import MoonCloud from '../assets/a5.webp';
-// import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import LocationGradient from '../modules/LocationGradient';
-// import {fetchWeatherData} from './weatherAPI';
-// import {TouchableHighlight} from 'react-native-gesture-handler';
 import {SearchBar} from '../modules/SearchBar';
-// import {API_KEY, API_BASE_URL} from '../modules/api';
-// import {weatherImage} from './MyLocationScreen';
+
 import {
   fetchWeatherData,
-  LocationName,
-  backgroundStyles,
-  backGrounds,
   imageStyles,
-  WEEK_DAYS,
-  months,
-  days,
-  weatherCondition,
-  weatherIconUrl,
-  conditionCode,
-  forecastData,
-  locationName,
 } from '../modules/api';
 
-const SearchScreen = () => {
+const SearchScreen = ({route}) => {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [forecast, setForecast] = useState(null);
-  const [nowWeather, setNowWeather] = useState('');
+  // const [nowWeather, setNowWeather] = useState('');
   const [weatherData, setWeatherData] = useState(null);
-  const [location, setLocation] = useState('');
   const [weatherTime, setWeatherTime] = useState('');
   const [weatherCondition, setWeatherCondition] = useState('');
   const [locationList, setLocationList] = useState([]);
+  const [location, setLocation] = useState('London');
 
-  const locationCondition = weatherData?.current?.condition.text;
+  // const locationCondition = weatherData?.current?.condition.text;
 
-  const localTemp = weatherData?.current.temp_c;
+  // const localTemp = weatherData?.current.temp_c;
+
+  useEffect(() => {
+    const {weatherCondition} = route.params || {};
+    if (weatherCondition) {
+      setWeatherCondition(weatherCondition);
+    }
+  }, [route.params]);
 
   useEffect(() => {
     const getWeatherData = async () => {
       try {
-        const data = await fetchWeatherData(location);
+        const data = await fetchWeatherData(route.params?.location);
         setWeatherData(data);
-        setWeatherCondition(locationCondition);
-        setForecast(localTemp);
       } catch (error) {
         console.error(error);
       }
     };
-    if (location) {
-      getWeatherData();
-    }
-  }, [location]);
+    getWeatherData();
+  }, [route.params?.location]);
+
+  // sunny wind blood-drop snowflake cloudy-gusts
+  const nowWeather = route.params?.nowWeather || null;
+
+  // Set weather condition from route params
+  useEffect(() => {
+    const {weatherCondition} = route.params || {};
+    setWeatherCondition(weatherCondition);
+  }, [route.params]);
 
   const navigation = useNavigation();
 
@@ -81,57 +77,49 @@ const SearchScreen = () => {
     });
   };
 
-
-
   const handleTomorrow = () => {
     navigation.navigate('TodayScreen');
   };
 
-
   const weatherIconUrl = weatherData?.current?.condition?.icon;
 
-  const weatherImage = imageStyles[nowWeather];
-
-  let tempData = '';
-  if (weatherData && weatherData.current) {
-    tempData = weatherData?.current.temp_c;
-  }
+  const weatherImage = nowWeather ? imageStyles[nowWeather] : null;
 
   const locationData = [
     {
       id: '1',
-      nowWeather: 'rainy',
+      nowWeather: weatherCondition || 'Rainy',
       locationName: 'Dublin',
-      imageSource: RainCloud,
-      tempData:'13',
+      imageSource: weatherImage ? weatherImage : RainCloud,
+      tempData: weatherData?.current?.temp_c || '13',
     },
     {
       id: '2',
-      nowWeather: 'Partly cloudy',
+      nowWeather: weatherCondition || 'Partly cloudy',
       locationName: 'Toronto',
-      imageSource: MoonCloud,
-      tempData:'17',
+      imageSource: weatherImage ? weatherImage : MoonCloud,
+      tempData: weatherData?.current?.temp_c || '17',
     },
     {
       id: '3',
-      nowWeather: 'sunny',
+      nowWeather: weatherCondition || 'Sunny',
       locationName: 'Istanbul',
-      imageSource: SunShine,
-      tempData:'24',
+      imageSource: weatherImage ? weatherImage : SunShine,
+      tempData: weatherData?.current?.temp_c || '24',
     },
     {
       id: '4',
-      nowWeather: 'snowy',
+      nowWeather: weatherCondition || 'Snowy',
       locationName: 'Nuuk',
-      imageSource: SnowFlake,
-      tempData: '-6',
+      imageSource: weatherImage ? weatherImage : SnowFlake,
+      tempData: weatherData?.current?.temp_c || '-6',
     },
     {
       id: '5',
-      nowWeather: 'rainy',
+      nowWeather: weatherCondition || 'Rainy',
       locationName: 'London',
-      imageSource: SnowFlake,
-      tempData:15
+      imageSource: weatherImage ? weatherImage : SnowFlake,
+      tempData: weatherData?.current?.temp_c || 15,
     },
   ];
 
@@ -175,18 +163,21 @@ const SearchScreen = () => {
                         style={styles.textA}>
                         {item.locationName}
                       </Text>
+
                       <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
                         style={styles.textB}>
                         {item.nowWeather}
                       </Text>
-                      <Text style={styles.textC}>
-                      {item.tempData}°
-                      </Text>
+
+                      <Text style={styles.textC}>{item.tempData}°</Text>
                     </View>
                     <View style={styles.imgcontainer}>
-                      <Image source={item.imageSource} style={styles.image} />
+                      <Image
+                        source={item.imageSource ? item.imageSource : null}
+                        style={styles.image}
+                      />
                     </View>
                   </LocationGradient>
                 </TouchableOpacity>

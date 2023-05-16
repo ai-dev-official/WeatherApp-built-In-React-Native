@@ -14,8 +14,6 @@ import GradientBackground from '../modules/Gradient';
 import Mysunicon from 'react-native-vector-icons/Ionicons';
 import Mywindicon from 'react-native-vector-icons/FontAwesome5';
 import Mydropicon from 'react-native-vector-icons/Fontisto';
-import weatherIconMappingDay from '../modules/WeatherIconMappingDay';
-import weatherIconMappingNight from '../modules/WeatherIconMappingNight';
 import {
   fetchWeatherData,
   backgroundStyles,
@@ -23,15 +21,12 @@ import {
   imageStyles,
   months,
   days,
-  conditionCode,
-  getClosestMatch,
   fetchForecastData,
   formatTime,
 } from '../modules/api';
 
 const MyLocationScreen = ({route}) => {
   const navigation = useNavigation();
-  const [background, setBackground] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [weatherCondition, setWeatherCondition] = useState('');
   const [weatherTime, setWeatherTime] = useState('');
@@ -124,22 +119,23 @@ const MyLocationScreen = ({route}) => {
   const renderDots = () => {
     const scrollDurationInSeconds = 300; // Change this value as needed
     const dotCount = 4;
-    const activeDotIndex = Math.floor((activeSlide * scrollDurationInSeconds) / (18 * dotCount)) % dotCount;
-  
+    const activeDotIndex =
+      Math.floor((activeSlide * scrollDurationInSeconds) / (18 * dotCount)) %
+      dotCount;
+
     return (
       <View style={styles.dotContainer}>
         {[...Array(dotCount)].map((_, i) => (
           <Text
             key={i}
-            style={[styles.dot, activeDotIndex === i && styles.activeDot]}
-          ></Text>
+            style={[
+              styles.dot,
+              activeDotIndex === i && styles.activeDot,
+            ]}></Text>
         ))}
       </View>
     );
   };
-  
-  
-  
 
   return (
     <>
@@ -156,7 +152,10 @@ const MyLocationScreen = ({route}) => {
               style={styles.image}
             />
             {weatherData && weatherData.current && (
-              <Text style={styles.textC}> {Math.round(weatherData.current.temp_c)}°</Text>
+              <Text style={styles.textC}>
+                {' '}
+                {Math.round(weatherData.current.temp_c)}°
+              </Text>
             )}
 
             {weatherData && weatherData.current && (
@@ -259,7 +258,10 @@ const MyLocationScreen = ({route}) => {
                   {forecastData && forecastData.forecast && (
                     <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[0]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[0]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[0]?.condition?.icon}`
+                          : undefined,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -286,7 +288,10 @@ const MyLocationScreen = ({route}) => {
                   {forecastData && forecastData.forecast && (
                     <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[1]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[1]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[1]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -310,12 +315,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[2]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[2]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[2]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
 
                   {forecastData && forecastData.forecast && (
@@ -338,12 +346,15 @@ const MyLocationScreen = ({route}) => {
                   )}
 
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[3]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[3]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[3]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
@@ -364,12 +375,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[4]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[4]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[4]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
@@ -390,9 +404,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[5]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[5]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[5]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -416,9 +433,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[6]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[6]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[6]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -442,12 +462,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[7]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[7]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[7]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
 
                   {forecastData && forecastData.forecast && (
@@ -469,9 +492,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[8]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[8]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[8]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -495,9 +521,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[9]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[9]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[9]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -521,9 +550,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[10]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[10]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[10]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -547,9 +579,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[11]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[11]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[11]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -573,12 +608,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[12]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[12]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[12]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
 
                   {forecastData && forecastData.forecast && (
@@ -600,9 +638,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[13]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[13]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[13]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -626,9 +667,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[14]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[14]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[14]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -652,9 +696,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[15]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[15]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[15]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -678,12 +725,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[16]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[16]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[16]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
@@ -704,12 +754,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[17]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[17]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[17]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
 
                   {forecastData && forecastData.forecast && (
@@ -731,9 +784,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[18]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[18]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[18]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -757,12 +813,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[19]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[19]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[19]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
@@ -783,12 +842,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[20]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[20]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[20]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>
@@ -809,9 +871,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[21]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[21]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[21]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -835,9 +900,12 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
+                      <Image
                       source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[22]?.condition.icon}`,
+                        uri: forecastData?.forecast?.forecastday[0]?.hour[22]
+                          ?.condition?.icon
+                          ? `https:${forecastData.forecast.forecastday[0]?.hour[22]?.condition?.icon}`
+                          : null,
                       }}
                       style={{width: 24, height: 24}}
                     />
@@ -861,12 +929,15 @@ const MyLocationScreen = ({route}) => {
                     </Text>
                   )}
                   {forecastData && forecastData.forecast && (
-                    <Image
-                      source={{
-                        uri: `https:${forecastData.forecast.forecastday[0]?.hour[23]?.condition.icon}`,
-                      }}
-                      style={{width: 24, height: 24}}
-                    />
+                     <Image
+                     source={{
+                       uri: forecastData?.forecast?.forecastday[0]?.hour[23]
+                         ?.condition?.icon
+                         ? `https:${forecastData.forecast.forecastday[0]?.hour[23]?.condition?.icon}`
+                         : null,
+                     }}
+                     style={{width: 24, height: 24}}
+                   />
                   )}
                   {forecastData && forecastData.forecast && (
                     <Text style={[styles.text, {fontSize: 18, marginTop: 5}]}>

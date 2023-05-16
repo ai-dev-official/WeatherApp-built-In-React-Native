@@ -53,11 +53,11 @@ export const updateWeatherInfo = weatherData => {
 // Call the updateWeatherInfo function with weatherData to update the variables
 
 export const LocationName = {
-  sunny: 'Istanbul',
-  cloudy: 'Toronto',
-  rainy: 'My Location',
-  stormy: 'London',
-  snowy: 'Nuuk',
+  Sunny: 'Istanbul',
+  'Partly Cloudy': 'Toronto',
+  Rainy: 'Dublin',
+  Stormy: 'London',
+  Snowy: 'Nuuk',
 };
 
 export const backgroundStyles = {
@@ -74,7 +74,7 @@ export const backgroundStyles = {
   'Light rain': {backgroundColor: '#41536e'},
   'Patchy rain': {backgroundColor: '#41536e'},
   'Light rain shower': {backgroundColor: '#41536e'},
-  'Patchy rain possible': {backgroundColor: '#282168'},
+  'Patchy rain possible': {backgroundColor: '#41536e'},
   'Partly cloudy': {backgroundColor: '#282168'},
   'Patchy light rain with thunder': {backgroundColor: '#ea4c89'},
   'Moderate or heavy rain with thunder': {backgroundColor: '#ea4c89'}
@@ -103,7 +103,6 @@ export const backGrounds = {
 export const imageStyles = {
   Clear: require('../assets/a4.webp'),
   Sunny: require('../assets/a4.webp'),
-  Partly : require('../assets/a7.webp'),
   Cloudy: require('../assets/a5.webp'),
   Overcast: require('../assets/a5.webp'),
   Foggy: require('../assets/a7.webp'),
@@ -112,6 +111,7 @@ export const imageStyles = {
   Drizzly: require('../assets/a1.webp'),
   Thundery: require('../assets/a6.webp'),
   Stormy: require('../assets/a9.webp'),
+  'Partly rainy' : require('../assets/a7.webp'),
   'Light rain': require('../assets/a3.webp'),
   'Patchy rain': require('../assets/a3.webp'),
   'Light rain shower': require('../assets/a3.webp'),
@@ -156,109 +156,109 @@ export const days = [
   'Saturday',
 ];
 
-export const getNowWeather = weatherData => {
-  if (weatherData) {
-    const {condition} = weatherData.current;
-    let nowWeather = '';
-    switch (condition.code) {
-      case 1000:
-        nowWeather = 'sunny';
-        break;
-      case 1003:
-        nowWeather = 'partly-cloudy';
-        break;
-      case 1006:
-      case 1009:
-        nowWeather = 'cloudy';
-        break;
-      case 1030:
-      case 1135:
-        nowWeather = 'foggy';
-        break;
-      case 1063:
-      case 1180:
-      case 1183:
-      case 1186:
-        nowWeather = 'rainy';
-        break;
-      case 1066:
-      case 1114:
-      case 1210:
-      case 1213:
-      case 1216:
-      case 1219:
-      case 1222:
-      case 1225:
-        nowWeather = 'snowy';
-        break;
-      case 1240:
-      case 1243:
-        nowWeather = 'drizzly';
-        break;
-      case 1273:
-      case 1276:
-      case 1279:
-      case 1282:
-        nowWeather = 'thundery';
-        break;
-      default:
-        nowWeather = 'stormy';
-        break;
-    }
-    return nowWeather;
-  }
-  return '';
-};
+// export const getNowWeather = weatherData => {
+//   if (weatherData) {
+//     const {condition} = weatherData.current;
+//     let nowWeather = '';
+//     switch (condition.code) {
+//       case 1000:
+//         nowWeather = 'Sunny';
+//         break;
+//       case 1003:
+//         nowWeather = 'Partly cloudy';
+//         break;
+//       case 1006:
+//       case 1009:
+//         nowWeather = 'Cloudy';
+//         break;
+//       case 1030:
+//       case 1135:
+//         nowWeather = 'foggy';
+//         break;
+//       case 1063:
+//       case 1180:
+//       case 1183:
+//       case 1186:
+//         nowWeather = 'rainy';
+//         break;
+//       case 1066:
+//       case 1114:
+//       case 1210:
+//       case 1213:
+//       case 1216:
+//       case 1219:
+//       case 1222:
+//       case 1225:
+//         nowWeather = 'snowy';
+//         break;
+//       case 1240:
+//       case 1243:
+//         nowWeather = 'drizzly';
+//         break;
+//       case 1273:
+//       case 1276:
+//       case 1279:
+//       case 1282:
+//         nowWeather = 'thundery';
+//         break;
+//       default:
+//         nowWeather = 'stormy';
+//         break;
+//     }
+//     return nowWeather;
+//   }
+//   return '';
+// };
 
-export const getWeatherCode = code => {
-  let nowWeather = '';
-  switch (code) {
-    case 1000:
-      nowWeather = 'sunny';
-      break;
-    case 1003:
-      nowWeather = 'partly-cloudy';
-      break;
-    case 1006:
-    case 1009:
-      nowWeather = 'cloudy';
-      break;
-    case 1030:
-    case 1135:
-      nowWeather = 'foggy';
-      break;
-    case 1063:
-    case 1180:
-    case 1183:
-    case 1186:
-      nowWeather = 'rainy';
-      break;
-    case 1066:
-    case 1114:
-    case 1210:
-    case 1213:
-    case 1216:
-    case 1219:
-    case 1222:
-    case 1225:
-      nowWeather = 'snowy';
-      break;
-    case 1240:
-    case 1243:
-      nowWeather = 'drizzly';
-      break;
-    case 1273:
-    case 1276:
-    case 1279:
-    case 1282:
-      nowWeather = 'thundery';
-      break;
-    default:
-      nowWeather = 'stormy';
-      break;
-  }
-  return nowWeather;
-};
+// export const getWeatherCode = code => {
+//   let nowWeather = '';
+//   switch (code) {
+//     case 1000:
+//       nowWeather = 'sunny';
+//       break;
+//     case 1003:
+//       nowWeather = 'partly-cloudy';
+//       break;
+//     case 1006:
+//     case 1009:
+//       nowWeather = 'cloudy';
+//       break;
+//     case 1030:
+//     case 1135:
+//       nowWeather = 'foggy';
+//       break;
+//     case 1063:
+//     case 1180:
+//     case 1183:
+//     case 1186:
+//       nowWeather = 'rainy';
+//       break;
+//     case 1066:
+//     case 1114:
+//     case 1210:
+//     case 1213:
+//     case 1216:
+//     case 1219:
+//     case 1222:
+//     case 1225:
+//       nowWeather = 'snowy';
+//       break;
+//     case 1240:
+//     case 1243:
+//       nowWeather = 'drizzly';
+//       break;
+//     case 1273:
+//     case 1276:
+//     case 1279:
+//     case 1282:
+//       nowWeather = 'thundery';
+//       break;
+//     default:
+//       nowWeather = 'stormy';
+//       break;
+//   }
+//   return nowWeather;
+// };
 
 // export const get24HourForecast = async (latitude, longitude, apiKey) => {
 //   apiKey = API_KEY;
@@ -300,76 +300,76 @@ export const getWeatherCode = code => {
 //   };
 // };
 
-export const weatherCondition = conditionCode => {
-  switch (conditionCode) {
-    case 1000:
-      return 'sunny';
-    case 1003:
-      return 'cloudy';
-    case 1063:
-    case 1180:
-    case 1183:
-    case 1186:
-      return 'rainy';
-    case 1066:
-    case 1114:
-    case 1210:
-    case 1213:
-    case 1216:
-    case 1219:
-    case 1222:
-    case 1225:
-      return 'snowy';
-    default:
-      return 'cloudy';
-  }
-};
+// export const weatherCondition = conditionCode => {
+//   switch (conditionCode) {
+//     case 1000:
+//       return 'sunny';
+//     case 1003:
+//       return 'cloudy';
+//     case 1063:
+//     case 1180:
+//     case 1183:
+//     case 1186:
+//       return 'rainy';
+//     case 1066:
+//     case 1114:
+//     case 1210:
+//     case 1213:
+//     case 1216:
+//     case 1219:
+//     case 1222:
+//     case 1225:
+//       return 'snowy';
+//     default:
+//       return 'cloudy';
+//   }
+// };
 
-export const getClosestMatch = conditionCode => {
-  switch (conditionCode) {
-    case 122:
-    case 113:
-      return 'sunny';
-    case 116:
-      return 'partly-cloudy';
-    case 119:
-    case 122:
-      return 'cloudy';
-    case 143:
-      return 'foggy';
-    case 176:
-      return 'rainy';
-    case 179:
-    case 182:
-    case 185:
-      return 'snowy';
-    case 200:
-    case 386:
-    case 389:
-    case 392:
-    case 395:
-      return 'thundery';
-    default:
-      // If no exact match, return the closest match based on condition code
-      if (conditionCode >= 113 && conditionCode < 116) {
-        return 'sunny';
-      } else if (conditionCode >= 116 && conditionCode < 119) {
-        return 'partly-cloudy';
-      } else if (conditionCode >= 119 && conditionCode < 122) {
-        return 'cloudy';
-      } else if (conditionCode >= 122 && conditionCode < 143) {
-        return 'foggy';
-      } else if (conditionCode >= 143 && conditionCode < 176) {
-        return 'rainy';
-      } else if (conditionCode >= 176 && conditionCode < 179) {
-        return 'snowy';
-      } else if (conditionCode >= 179 && conditionCode < 200) {
-        return 'thundery';
-      } else {
-        return 'stormy';
-      }
-  }
-};
+// export const getClosestMatch = conditionCode => {
+//   switch (conditionCode) {
+//     case 122:
+//     case 113:
+//       return 'sunny';
+//     case 116:
+//       return 'partly-cloudy';
+//     case 119:
+//     case 122:
+//       return 'cloudy';
+//     case 143:
+//       return 'foggy';
+//     case 176:
+//       return 'rainy';
+//     case 179:
+//     case 182:
+//     case 185:
+//       return 'snowy';
+//     case 200:
+//     case 386:
+//     case 389:
+//     case 392:
+//     case 395:
+//       return 'thundery';
+//     default:
+//       // If no exact match, return the closest match based on condition code
+//       if (conditionCode >= 113 && conditionCode < 116) {
+//         return 'sunny';
+//       } else if (conditionCode >= 116 && conditionCode < 119) {
+//         return 'partly-cloudy';
+//       } else if (conditionCode >= 119 && conditionCode < 122) {
+//         return 'cloudy';
+//       } else if (conditionCode >= 122 && conditionCode < 143) {
+//         return 'foggy';
+//       } else if (conditionCode >= 143 && conditionCode < 176) {
+//         return 'rainy';
+//       } else if (conditionCode >= 176 && conditionCode < 179) {
+//         return 'snowy';
+//       } else if (conditionCode >= 179 && conditionCode < 200) {
+//         return 'thundery';
+//       } else {
+//         return 'stormy';
+//       }
+//   }
+// };
 
 export const now = new Date();
 export const hours = now.getHours();

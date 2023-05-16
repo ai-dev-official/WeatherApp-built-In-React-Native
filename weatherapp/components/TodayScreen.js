@@ -20,11 +20,7 @@ const TodayScreen = () => {
   const scrollViewRef = useRef();
 
   useEffect(() => {
-    // fetch weather data from API and set weatherCondition accordingly
-    // for example:
-    // const weatherData = await fetchWeatherData();
-    // setWeatherCondition(weatherData.condition);
-    setWeatherCondition('snowy');
+    setWeatherCondition('Snowy');
   }, []);
 
   const handleNavigation = () => {
